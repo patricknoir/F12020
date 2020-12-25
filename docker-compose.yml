@@ -1,0 +1,26 @@
+version: '3'
+services:
+  recorder:
+    build:
+      context: ./golang
+      dockerfile: ./Dockerfile
+      args:
+        project: ./cmd/recorder/
+    environment:
+      - SERVER_HOST=127.0.0.1
+      - SERVER_PORT=20777
+      - APP_NAME=recorder
+    ports:
+      - 20777:20777
+    restart: on-failure
+    volumes:
+      - recorder_vol:/usr/src/recorder
+    networks:
+      - monorepo_net
+
+volumes:
+  recorder_vol:
+
+networks:
+  monorepo_net:
+    driver: bridge

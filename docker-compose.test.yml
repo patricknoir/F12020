@@ -1,0 +1,30 @@
+version: '3'
+services:
+  pkg_test:
+    build:
+      context: ./golang
+      dockerfile: ./Dockerfile.test
+      args:
+        project: ./pkg/...
+    volumes:
+      - testing_vol:/usr/src/pkg/
+    networks:
+      - monorepo_net
+  recorder_test:
+    build:
+      context: ./golang
+      dockerfile: ./Dockerfile.test
+      args:
+        project: ./cmd/recorder/...
+    depends_on:
+      - pkg_test
+    volumes:
+      - testing_vol:/usr/src/recorder/
+    networks:
+      - monorepo_net
+volumes:
+  testing_vol:
+
+networks:
+  monorepo_net:
+    driver: bridge
