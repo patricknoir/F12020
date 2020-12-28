@@ -16,6 +16,7 @@ const maxIndex int = 37800
 
 func main() {
 	var basePath string = path
+	frameMap := make(map[uint32][]string)
 	if len(os.Args) > 1 {
 		basePath = os.Args[1]
 	}
@@ -33,15 +34,44 @@ func main() {
 		header := packet.PacketHeader{}
 		err = binary.Read(f, binary.LittleEndian, &header)
 		if !errors.LogError(err) {
-			if n<100 {
+			//if n<100 {
 				printPacketPayload(header, f)
-			}
-			countPackets(counter, &header)
+				mapFrame(header, f, frameMap)
+			//}
+			//countPackets(counter, &header)
 		}
 		f.Close()
 		n++
 	}
+	fmt.Printf("%+v\n", frameMap)
 	fmt.Printf("%+v\n", counter)
+}
+
+func mapFrame(h packet.PacketHeader, f *os.File, frameMap map[uint32][]string) {
+	var p interface{}
+	switch h.PacketID {
+	case packet.Session:
+		p, _ = handleSessionPacket(h, f)
+	case packet.Motion:
+		p, _ = handleMotionPacket(h, f)
+	case packet.LobbyInfo:
+		p, _ = handleLobbyInfoPacket(h, f)
+	case packet.LapData:
+		p, _ = handleLapDataPacket(h, f)
+	case packet.FinalClassification:
+		p, _ = handleFinalClassificationPacket(h, f)
+	case packet.Event:
+		p, _ = handleEventPacket(h, f)
+	case packet.Participants:
+		p, _ = handleParticipantsPacket(h, f)
+	case packet.CarTelemetry:
+		p, _ = handleCarTelemetryPacket(h, f)
+	default:
+		//fmt.Printf("skipping packet %d\n", id)
+	}
+	_ = p
+	frameId := h.FrameIdentifier
+	frameMap[frameId] = append(frameMap[frameId], packet.PacketIDMap[h.PacketID])
 }
 
 func printPacketPayload(h packet.PacketHeader, f *os.File) {
@@ -68,10 +98,11 @@ func printPacketPayload(h packet.PacketHeader, f *os.File) {
 	}
 
 	_ = p
-	fmt.Println("Packet: " + packet.PacketIDMap[h.PacketID])
-	//out, err := json.MarshalIndent(p, "", "  ")
-	out, err := json.Marshal(p)
-	if !errors.LogError(err) { //&& h.PacketID == packet.LobbyInfo {
+	//fmt.Println("Packet: " + packet.PacketIDMap[h.PacketID])
+	fmt.Printf("Packet: %s\t| Frame ID: %d\t| SessionTime: %f \n", packet.PacketIDMap[h.PacketID], h.FrameIdentifier, h.SessionTime)
+	out, err := json.MarshalIndent(p, "", "  ")
+	//out, err := json.Marshal(p)
+	if !errors.LogError(err) && h.PacketID == packet.LapData {
 		fmt.Println(string(out))
 	}
 }

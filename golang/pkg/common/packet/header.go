@@ -21,7 +21,7 @@ type PacketHeader struct {
 	PacketVersion	 uint8				// Version of this packet type, all start from 1
 	PacketID		 PacketID			// Identifier for the packet type, see below
 	SessionUID		 uint64				// Unique identifier for the session
-	SessionTime		 float32				// Session timestamp
+	SessionTime		 float32			// Session timestamp
 	FrameIdentifier  uint32				// Identifier for the frame the data was retrieved on
 	PlayerCarIndex   uint8				// Index of the player's car in the array
 
