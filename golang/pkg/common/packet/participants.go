@@ -2,7 +2,7 @@ package packet
 
 import (
 	"encoding/json"
-	"github.com/patricknoir/F12020/pkg/common/strutil"
+	"github.com/patricknoir/F12020/pkg/common/utils"
 )
 
 /*
@@ -33,8 +33,11 @@ const (
 type ParticipantName [48]byte
 
 func (p ParticipantName) MarshalJSON() ([]byte, error) {
-	s := strutil.ToString(p[:])
-	return json.Marshal(s)
+	return json.Marshal(p.ToString())
+}
+
+func (p ParticipantName) ToString() string {
+	return utils.ToString(p[:])
 }
 
 type ParticipantData struct

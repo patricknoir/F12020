@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
+	"github.com/patricknoir/F12020/cmd/reader/dbwriter"
 	"github.com/patricknoir/F12020/pkg/common/errors"
 	"github.com/patricknoir/F12020/pkg/common/packet"
 	"os"
@@ -34,17 +34,18 @@ func main() {
 		header := packet.PacketHeader{}
 		err = binary.Read(f, binary.LittleEndian, &header)
 		if !errors.LogError(err) {
-			//if n<100 {
-				printPacketPayload(header, f)
-				mapFrame(header, f, frameMap)
+			//if n<400 {
+			printPacketPayload(header, f)
+			mapFrame(header, f, frameMap)
 			//}
-			//countPackets(counter, &header)
+			countPackets(counter, &header)
 		}
 		f.Close()
 		n++
 	}
-	fmt.Printf("%+v\n", frameMap)
-	fmt.Printf("%+v\n", counter)
+	//fmt.Printf("%+v\n", frameMap)
+	//fmt.Printf("%+v\n", counter)
+	dbwriter.ClearResources()
 }
 
 func mapFrame(h packet.PacketHeader, f *os.File, frameMap map[uint32][]string) {
@@ -78,33 +79,41 @@ func printPacketPayload(h packet.PacketHeader, f *os.File) {
 	var p interface{}
 	switch h.PacketID {
 		case packet.Session:
-			p, _ = handleSessionPacket(h, f)
+			session, _ := handleSessionPacket(h, f)
+			dbwriter.UpdateMetricsDataWithSessionPacket(session)
+			p = session
 		case packet.Motion:
 			p, _ = handleMotionPacket(h, f)
 		case packet.LobbyInfo:
 			p, _ = handleLobbyInfoPacket(h, f)
 		case packet.LapData:
-			p, _ = handleLapDataPacket(h, f)
+			lapData, _ := handleLapDataPacket(h, f)
+			dbwriter.UpdateMetricsDataWithLapData(lapData)
+			p = lapData
 		case packet.FinalClassification:
 			p, _ = handleFinalClassificationPacket(h, f)
 		case packet.Event:
 			p, _ = handleEventPacket(h, f)
 		case packet.Participants:
-			p, _ = handleParticipantsPacket(h, f)
+			participants, _ := handleParticipantsPacket(h, f)
+			dbwriter.UpdateMetricsDataWithParticipantsPacket(participants)
+			p = participants
 		case packet.CarTelemetry:
-			p, _ = handleCarTelemetryPacket(h, f)
+			telemetry, _ := handleCarTelemetryPacket(h, f)
+			dbwriter.UpdateMetricsDataWithTelemetry(telemetry)
+			p = telemetry
 		default:
 			//fmt.Printf("skipping packet %d\n", id)
 	}
 
 	_ = p
 	//fmt.Println("Packet: " + packet.PacketIDMap[h.PacketID])
-	fmt.Printf("Packet: %s\t| Frame ID: %d\t| SessionTime: %f \n", packet.PacketIDMap[h.PacketID], h.FrameIdentifier, h.SessionTime)
-	out, err := json.MarshalIndent(p, "", "  ")
+	//fmt.Printf("Packet: %s\t| Frame ID: %d\t| SessionTime: %f \n", packet.PacketIDMap[h.PacketID], h.FrameIdentifier, h.SessionTime)
+	//out, err := json.MarshalIndent(p, "", "  ")
 	//out, err := json.Marshal(p)
-	if !errors.LogError(err) && h.PacketID == packet.LapData {
-		fmt.Println(string(out))
-	}
+	//if !errors.LogError(err) && h.PacketID == packet.CarTelemetry {
+	//	fmt.Println(string(out))
+	//}
 }
 
 func handleCarTelemetryPacket(h packet.PacketHeader, f *os.File) (packet.CarTelemetryDataPacket, error) {

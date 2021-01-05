@@ -36,7 +36,7 @@ const (
 	Q2			   = 6
 	Q3			   = 7
 	ShortQualify   = 8
-	OSQ			   = 9
+	OneShotQualify = 9
 	Race		   = 10
 	SprintRace	   = 11
 	TimeTrial	   = 12

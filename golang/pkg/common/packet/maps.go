@@ -231,7 +231,7 @@ var TeamIDMap = map[uint8]string {
 	255: "My Team",
 }
 
-var TrackIDMap = map[uint8]string {
+var TrackIDMap = map[int8]string {
 	0: "Melbourne",
 	1: "Paul Ricard",
 	2: "Shanghai",
@@ -369,7 +369,29 @@ var TyresIDMap = map[uint8]string {
 	15: "F2_Wet",
 }
 
+var SessionTypeMap = map[SessionType]string {
+	0:  "UnknownSession",
+	1:  "P1",
+	2:  "P2",
+	3:  "P3",
+	4:  "Short Practice",
+	5:  "Q1",
+	6:  "Q2",
+	7:  "Q3",
+	8:  "Short Qualify",
+	9:  "One Shot Qualify",
+	10: "Race",
+	11: "Sprint Race",
+	12: "Time Trial",
+}
 
+var FormulaTypeMap = map[Formula]string {
+	ModernF1	: "Formula 1 2020",
+	ClassicF1	: "Classic Formula 1",
+	F2_2019		: "Formula 2 2019",
+	GenericF1	: "Generic Formula 1",
+	F2_2020		: "Formula 2 2020",
+}
 
 
 

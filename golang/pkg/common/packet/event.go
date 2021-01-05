@@ -3,7 +3,7 @@ package packet
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/patricknoir/F12020/pkg/common/strutil"
+	"github.com/patricknoir/F12020/pkg/common/utils"
 )
 
 /*
@@ -46,7 +46,7 @@ type EventDetails struct {
 
 type EventStringCode [4]byte
 func (esc EventStringCode) MarshalJSON() ([]byte, error) {
-	return json.Marshal(strutil.ToString(esc[:]))
+	return json.Marshal(utils.ToString(esc[:]))
 }
 const (
 	SessionStarted		= "SSTA"
